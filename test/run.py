@@ -7,10 +7,12 @@ Scénarios : desktop, mobile, repli (sans WebGL), rapide.
 import asyncio, functools, http.server, os, pathlib, sys, threading, time
 from playwright.async_api import async_playwright
 
-ROOT = pathlib.Path('/home/claude/site/dist')
-NM = pathlib.Path('/home/claude/vendor/node_modules')
-FONTS = pathlib.Path('/home/claude/vendor/fonts')
-OUT = pathlib.Path(os.environ.get('OUT', '/tmp/claude-0/-home-claude/03d20528-33fb-51fb-a210-6e237cd51802/scratchpad/shots'))
+RACINE = pathlib.Path(__file__).resolve().parent.parent
+# Chemins relatifs au dépôt, modifiables par variables d'environnement.
+ROOT = pathlib.Path(os.environ.get('ROOT') or RACINE / 'dist')
+# Polices locales facultatives (machine sans accès à Google Fonts) : Jost.ttf, Oranienbaum.ttf…
+FONTS = pathlib.Path(os.environ.get('FONTS') or RACINE / 'build' / 'polices')
+OUT = pathlib.Path(os.environ.get('OUT') or RACINE / 'build' / 'captures')
 OUT.mkdir(parents=True, exist_ok=True)
 PORT = int(os.environ.get('PORT', '8765'))
 _vp = os.environ.get('VIEWPORT')
@@ -49,6 +51,8 @@ def serve():
 async def route(r):
     url = r.request.url
     hdr = {'Access-Control-Allow-Origin': '*'}
+    if ('fonts.googleapis.com' in url or 'fonts.gstatic.com' in url) and not FONTS.is_dir():
+        return await r.continue_()  # pas de polices locales : on les charge depuis Google
     if 'fonts.googleapis.com' in url:
         return await r.fulfill(status=200, body=FONT_CSS, headers=dict(hdr, **{'Content-Type': 'text/css'}))
     if 'fonts.gstatic.com/t/' in url:

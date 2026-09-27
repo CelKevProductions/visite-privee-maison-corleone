@@ -1,5 +1,5 @@
-import asyncio, sys, time
-sys.path.insert(0, '/home/claude/site/test')
+import asyncio, pathlib, sys, time
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from run import serve, route, PORT
 from playwright.async_api import async_playwright
 
