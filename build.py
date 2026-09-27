@@ -123,9 +123,14 @@ def main():
     ])
     PUBLIC.mkdir(exist_ok=True)
     (PUBLIC / 'index.html').write_text(site, encoding='utf-8')
+    # les images vivent dans public/img (versionnées) ; dist/img en est la copie pour les essais
     (PUBLIC / 'img').mkdir(exist_ok=True)
+    (DIST / 'img').mkdir(exist_ok=True)
     for img in (DIST / 'img').glob('*.webp'):
-        shutil.copyfile(img, PUBLIC / 'img' / img.name)
+        if not (PUBLIC / 'img' / img.name).exists():
+            shutil.copyfile(img, PUBLIC / 'img' / img.name)
+    for img in (PUBLIC / 'img').glob('*.webp'):
+        shutil.copyfile(img, DIST / 'img' / img.name)
     print('public/index.html', len(site.encode('utf-8')) // 1024, 'Ko')
 
 

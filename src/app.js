@@ -1811,7 +1811,8 @@
   addEventListener('visite3d:pret', () => {
     root.classList.remove('no-3d');
     majEntrer();
-    if (veutEntrer && mode === 'accueil') { const v = veutEntrer; entrer(v.n, v.o); }
+    // le visiteur attendait : on laisse la maquette souffler un instant avant le vol d'entrée
+    if (veutEntrer && mode === 'accueil') { const v = veutEntrer; setTimeout(() => { if (mode === 'accueil') entrer(v.n, v.o); }, 450); }
   });
   addEventListener('visite3d:echec', () => {
     root.classList.add('no-3d');

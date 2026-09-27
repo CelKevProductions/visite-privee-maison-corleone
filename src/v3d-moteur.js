@@ -279,22 +279,44 @@ async function lancer3D() {
     GS.to(orb, { cy: 0, cp: 0, duration: duree, ease: 'power2.inOut', overwrite: true });
   }
   const off = new THREE.Vector3(), sph = new THREE.Spherical();
+  // la caméra est-elle dans la pièce regardée (vue « Intérieur », plan rapproché) ?
+  function dansPiece(x, y, z) {
+    const E = espaceCourant && ESP[espaceCourant], b = E && E.bornes;
+    if (!b || b.dehors || y > b.h) return false;
+    const lx = x - E.g.position.x, lz = z - E.g.position.z;
+    return b.rond ? lx * lx + lz * lz < b.rond * b.rond : lx > b.x0 && lx < b.x1 && lz > b.z0 && lz < b.z1;
+  }
   function appliquerCamera(dt) {
     orb.yaw += (orb.cy - orb.yaw) * Math.min(1, dt * 7);
     orb.pitch += (orb.cp - orb.pitch) * Math.min(1, dt * 7);
     souris.sx += (souris.x - souris.sx) * Math.min(1, dt * 2.5);
     souris.sy += (souris.y - souris.sy) * Math.min(1, dt * 2.5);
-    off.set(cam.px - cam.tx, cam.py - cam.ty, cam.pz - cam.tz);
     const parallaxe = REDUIT || TACTILE ? 0 : .045;
-    const yaw = orb.yaw + souris.sx * parallaxe, pitch = orb.pitch - souris.sy * parallaxe * .5;
-    if (yaw || pitch) {
-      sph.setFromVector3(off);
-      sph.theta -= yaw;
-      sph.phi = clamp(sph.phi + pitch, .08, 1.54);
-      off.setFromSpherical(sph);
+    if (dansPiece(cam.px, cam.py, cam.pz)) {
+      // dans une pièce, on tourne la tête sans bouger : en tournant autour du point visé, la
+      // caméra traversait les murs et le plafond disparaissait (il n'est montré que de l'intérieur)
+      off.set(cam.tx - cam.px, cam.ty - cam.py, cam.tz - cam.pz);
+      const yaw = orb.yaw - souris.sx * parallaxe * .6, pitch = orb.pitch + souris.sy * parallaxe * .3;
+      if (yaw || pitch) {
+        sph.setFromVector3(off);
+        sph.theta += yaw;
+        sph.phi = clamp(sph.phi + pitch, .45, 2.5);
+        off.setFromSpherical(sph);
+      }
+      camera.position.set(cam.px, cam.py, cam.pz);
+      camera.lookAt(cam.px + off.x, cam.py + off.y, cam.pz + off.z);
+    } else {
+      off.set(cam.px - cam.tx, cam.py - cam.ty, cam.pz - cam.tz);
+      const yaw = orb.yaw + souris.sx * parallaxe, pitch = orb.pitch - souris.sy * parallaxe * .5;
+      if (yaw || pitch) {
+        sph.setFromVector3(off);
+        sph.theta -= yaw;
+        sph.phi = clamp(sph.phi + pitch, .08, 1.54);
+        off.setFromSpherical(sph);
+      }
+      camera.position.set(cam.tx + off.x, cam.ty + off.y, cam.tz + off.z);
+      camera.lookAt(cam.tx, cam.ty, cam.tz);
     }
-    camera.position.set(cam.tx + off.x, cam.ty + off.y, cam.tz + off.z);
-    camera.lookAt(cam.tx, cam.ty, cam.tz);
     // plan proche proportionnel à la distance : la précision de profondeur suit la caméra
     // (sinon, vus de loin, les sols des pièces et le socle se confondent et scintillent)
     const proche = clamp(off.length() * .02, .05, 2.5);
@@ -647,15 +669,17 @@ async function lancer3D() {
      Boucle de rendu (sur le ticker de GSAP, seulement quand la 3D est visible)
      --------------------------------------------------------------- */
   let actif = false, dernier = performance.now(), temps = 0;
-  const perf = { n: 0, somme: 0 };
+  const perf = { n: 0, somme: 0, fenetre: 30 };
   function adapter(dt) {
     perf.n++; perf.somme += dt;
-    if (perf.n < 90) return;
+    // premier bilan vite (le vol d'entrée ne doit pas se jouer entier en trop haute définition)
+    if (perf.n < perf.fenetre) return;
     const moy = perf.somme / perf.n;
-    perf.n = 0; perf.somme = 0;
+    perf.n = 0; perf.somme = 0; perf.fenetre = 60;
     const max = Math.min(window.devicePixelRatio || 1, QUAL.dpr);
     let nd = dpr;
-    if (moy > .03 && dpr > QUAL.dprMin) nd = Math.max(QUAL.dprMin, dpr - .2);
+    if (moy > .045 && dpr > QUAL.dprMin) nd = Math.max(QUAL.dprMin, dpr - .35);
+    else if (moy > .03 && dpr > QUAL.dprMin) nd = Math.max(QUAL.dprMin, dpr - .2);
     else if (moy < .014 && dpr < max) nd = Math.min(max, dpr + .2);
     if (nd !== dpr) { dpr = nd; renderer.setPixelRatio(dpr); redimensionner(); }
   }
@@ -685,7 +709,7 @@ async function lancer3D() {
     if (couche) couche.classList.toggle('is-actif', v);
   }
   if (QUAL.debug) window.__mc3d = {
-    renderer, actif: () => actif,
+    renderer, scene, camera, actif: () => actif,
     pause() { if (GS) GS.ticker.remove(boucle); else renderer.setAnimationLoop(null); },
     reprise() { if (actif) { if (GS) GS.ticker.add(boucle); else renderer.setAnimationLoop(boucle); } },
     // essais : une planche de pièces du catalogue, rendue dans la scène du studio
@@ -754,38 +778,57 @@ async function lancer3D() {
   creerPoints();
   appliquerAmbiance(0);
 
-  // compilation des shaders espace par espace, dans une petite image hors écran :
-  // sans l'extension de compilation parallèle, un seul premier rendu figerait la page
-  const mini = new THREE.WebGLRenderTarget(64, 64);
+  // Chauffe, cachée par le préchargement : shaders compilés tels qu'ils serviront à l'écran,
+  // géométries et textures envoyées au GPU, espace par espace. Elle se fait dans un tout petit
+  // tampon de l'écran : un rendu dans une cible hors écran compilerait d'autres variantes
+  // (sans tone mapping ni sortie sRGB), et l'écran recompilerait tout au premier vol de la
+  // caméra, d'où le gros gel au passage de l'accueil à la 3D.
   const camChauffe = new THREE.PerspectiveCamera(40, 1, .5, 260);
   const parallele = !!renderer.extensions.get('KHR_parallel_shader_compile');
+  const taille0 = renderer.getSize(new THREE.Vector2()), dpr0 = renderer.getPixelRatio();
+  renderer.setPixelRatio(1);
+  renderer.setSize(96, 96, false);
+  const viser3D = p => { camChauffe.position.set(p.px, p.py, p.pz); camChauffe.lookAt(p.tx, p.ty, p.tz); camChauffe.updateMatrixWorld(); };
   const chauffer = async (sc, cm) => {
     try {
-      if (parallele && renderer.compileAsync) await Promise.race([renderer.compileAsync(sc, cm), new Promise(r => setTimeout(r, 4000))]);
-      renderer.setRenderTarget(mini);
+      if (parallele && renderer.compileAsync) await Promise.race([renderer.compileAsync(sc, cm), new Promise(r => setTimeout(r, 8000))]);
       renderer.render(sc, cm);
     } catch (_) { /* la compilation se fera au premier affichage */ }
-    renderer.setRenderTarget(null);
   };
+  // le temps de la chauffe, tout est montré (plafonds, pièces masquées par un choix) et rien
+  // n'est écarté par le champ de la caméra ; la matière « fantôme » (pièce non retenue) aussi
+  const etats = [];
+  scene.traverse(o => { etats.push([o, o.visible, o.frustumCulled]); o.visible = true; o.frustumCulled = false; });
+  const temoin = new THREE.Mesh(new THREE.BoxGeometry(.01, .01, .01), M('fantome'));
+  temoin.position.set(0, -20, 0);
+  scene.add(temoin);
   for (let i = 0; i < ids.length; i++) {
     for (const id in ESP) ESP[id].g.visible = id === ids[i];
-    const p = pose(ids[i], 'maquette');
-    camChauffe.position.set(p.px, p.py, p.pz);
-    camChauffe.lookAt(p.tx, p.ty, p.tz);
-    camChauffe.updateMatrixWorld();
+    viser3D(pose(ids[i], 'maquette'));
     setFocus(ids[i]);
     renderer.shadowMap.needsUpdate = true;
     await chauffer(scene, camChauffe);
     chrono('compilation ' + ids[i]);
-    evt('visite3d:progres', { p: .56 + .32 * (i + 1) / ids.length });
+    evt('visite3d:progres', { p: .56 + .3 * (i + 1) / ids.length });
     await ceder();
   }
+  // la maquette entière, comme au premier vol de la caméra (ombres de l'ensemble comprises)
   for (const id in ESP) ESP[id].g.visible = true;
+  setFocus(null);
+  viser3D(pose('ensemble'));
+  renderer.shadowMap.needsUpdate = true;
+  await chauffer(scene, camChauffe);
+  scene.remove(temoin);
+  temoin.geometry.dispose();
+  etats.forEach(([o, v, f]) => { o.visible = v; o.frustumCulled = f; });
+  chrono('compilation ensemble');
+  await ceder();
   studio.ouvrir('deluxe', 'lit', choixDe('deluxe', 'lit'));
   await chauffer(studio.scene, studio.cam);
   studio.fermer();
   chrono('compilation studio');
-  mini.dispose();
+  renderer.setPixelRatio(dpr0);
+  renderer.setSize(taille0.x, taille0.y, false);
   evt('visite3d:progres', { p: .94 });
   await ceder();
   setFocus(null);
