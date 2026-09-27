@@ -1,0 +1,17 @@
+# Temporaire : récupère le rendu fal.ai de l'essai pour le vérifier, puis la branche est supprimée.
+name: Apercu du rendu (temporaire)
+on:
+  push:
+    branches: [apercu-rendu]
+permissions:
+  contents: write
+jobs:
+  apercu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          curl -sSfL -o rendu.jpg "https://v3b.fal.media/files/b/0aac2412/MV7dKgoKcyQocUHdwU-hW_qyTMIJqQ.jpg"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add rendu.jpg && git commit -qm "Apercu du rendu" && git push
