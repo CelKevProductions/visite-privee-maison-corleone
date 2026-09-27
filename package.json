@@ -1,0 +1,14 @@
+{
+  "name": "visite-privee-maison-corleone",
+  "private": true,
+  "description": "Visite privée Maison Corleone : visite 3D, catalogue complet, rendu réaliste (fal.ai) et pièce 3D (World Labs).",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10",
+    "gsap": "3.15.0",
+    "three": "0.180.0"
+  }
+}

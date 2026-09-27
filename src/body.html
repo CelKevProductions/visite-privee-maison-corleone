@@ -1,0 +1,276 @@
+<a class="skip" href="#entrer">Aller à l'entrée de la visite</a>
+
+<!-- Définitions : fleur-emblème -->
+<svg class="sr-only" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="fleur-mark" viewBox="33 33 34 34">
+      <g class="emblem__mark">
+        <path d="M50 49C45.5 44 45.2 38.6 50 35.5C54.8 38.6 54.5 44 50 49Z"/>
+        <path d="M50 49C45.5 44 45.2 38.6 50 35.5C54.8 38.6 54.5 44 50 49Z" transform="rotate(90 50 50)"/>
+        <path d="M50 49C45.5 44 45.2 38.6 50 35.5C54.8 38.6 54.5 44 50 49Z" transform="rotate(180 50 50)"/>
+        <path d="M50 49C45.5 44 45.2 38.6 50 35.5C54.8 38.6 54.5 44 50 49Z" transform="rotate(270 50 50)"/>
+        <circle cx="50" cy="50" r="1.5"/><circle cx="56.6" cy="43.4" r="1"/><circle cx="56.6" cy="56.6" r="1"/><circle cx="43.4" cy="56.6" r="1"/><circle cx="43.4" cy="43.4" r="1"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- Préchargement -->
+<div class="preloader" aria-hidden="true">
+  <svg class="preloader__curtain" width="100%" height="100%" aria-hidden="true"><path class="preloader__shape" fill-rule="evenodd" d="M0 0H20000V20000H0Z"/></svg>
+  <p class="preloader__watermark pre-txt">Visite privée</p>
+  <span class="preloader__mark pre-txt"><svg viewBox="33 33 34 34"><use href="#fleur-mark"/></svg></span>
+  <p class="preloader__side preloader__side--l pre-txt" data-fill="coteGauche">Roissy</p>
+  <p class="preloader__side preloader__side--r pre-txt" data-fill="coteDroit">Charles-de-Gaulle</p>
+  <div class="preloader__title pre-txt">
+    <p class="preloader__caps"><span>Maison</span><span>Corleone</span></p>
+    <p class="preloader__script">Visite privée</p>
+  </div>
+  <span class="preloader__line pre-txt"><span></span></span>
+  <p class="preloader__pct pre-txt"><span class="preloader__etape">Construction de la maquette</span> <b>0</b>&nbsp;%</p>
+  <p class="preloader__foot pre-txt">Maison Corleone<br>L'escale devient une destination.</p>
+</div>
+
+<!-- En-tête -->
+<header class="site-header" data-mode="on-dark">
+  <a class="emblem" href="#accueil" data-accueil aria-label="Maison Corleone, retour à l'accueil">
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <defs><path id="emblem-cercle" d="M50,50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0"/></defs>
+      <g class="emblem__rot"><text class="emblem__text"><textPath href="#emblem-cercle">Maison Corleone · Visite privée · Roissy · </textPath></text></g>
+      <use href="#fleur-mark" x="37" y="37" width="26" height="26"/>
+    </svg>
+  </a>
+  <nav class="site-nav" aria-label="Accès rapides">
+    <p class="site-nav__main" aria-live="polite"><span class="site-nav__titre">Visite</span><span class="site-nav__sous">privée</span></p>
+    <div class="site-nav__small">
+      <button type="button" data-panier>Ma sélection<span class="sel-count" aria-hidden="true"><span data-sel-count>0</span></span><span class="sr-only" data-sel-count-sr></span></button>
+      <button type="button" data-modal-open>Prendre rendez-vous</button>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu"><span class="menu-btn__icon" aria-hidden="true"><i></i><i></i></span><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </nav>
+</header>
+
+<!-- Avancement dans la visite -->
+<div class="rail" data-mode="on-dark" aria-hidden="true">
+  <span class="rail__word">Visite</span>
+  <span class="rail__line"><span class="rail__fill"></span></span>
+  <span class="rail__num">00</span>
+</div>
+
+<!-- Menu -->
+<div class="menu" id="menu" aria-hidden="true" inert>
+  <nav class="menu__nav" aria-label="Espaces de la visite">
+    <ol class="menu__list"></ol>
+  </nav>
+  <div class="menu__aside">
+    <p><strong>Visite privée</strong>Proposition de réaménagement préparée pour le <span data-fill="hotel">Marriott Roissy-Charles-de-Gaulle</span>, <span data-fill="date">septembre 2026</span>.</p>
+    <p><strong>Maison Corleone</strong>Mobilier et pièces de créateurs, Nanterre. <span data-fill="email">contact@maisoncorleone.com</span></p>
+    <p class="menu__actions"><button class="btn btn--sm btn--light" type="button" data-panier>Ma sélection</button> <button class="btn btn--sm btn--light" type="button" data-modal-open>Prendre rendez-vous</button></p>
+  </div>
+</div>
+
+<!-- Maquette 3D (plein écran) et points sur les meubles -->
+<canvas id="scene3d" role="img" aria-label="Maquette 3D de l'hôtel meublée avec les pièces Maison Corleone"></canvas>
+<div class="visite-voile" aria-hidden="true"></div>
+<div class="hs-couche" role="group" aria-label="Pièces visibles dans la maquette"></div>
+
+<main id="main">
+  <!-- Accueil -->
+  <section class="hero" id="accueil" data-header="on-dark">
+    <div class="hero__photo media">
+      <div class="media__inner"><img src="img/chambre-deluxe.webp" width="1536" height="1024" alt="La Chambre Deluxe proposée : tête de lit en cuir orange, lattes de bois éclairées par une LED ondulée, fauteuil terracotta devant la fenêtre" decoding="async" fetchpriority="high" draggable="false"></div>
+    </div>
+    <span class="hero__edge" aria-hidden="true"></span>
+    <div class="fleur fleur--tl fleur--lg" data-fleur="1" aria-hidden="true"></div>
+    <div class="fleur fleur--tr fleur--sm" data-fleur="7" aria-hidden="true"></div>
+    <div class="hero__head">
+      <p class="hero__kicker caps"><span class="mask"><span class="mask__in hero__reveal">Maison Corleone pour le <span data-fill="hotelCourt">Marriott CDG</span></span></span></p>
+      <h1 class="hero__title display"><span class="line">Visite</span><span class="line">privée</span></h1>
+      <p class="hero__script script" data-fill="script">Centre Roissy</p>
+      <div class="hero__tagline">
+        <span class="hero__tag-l hero__fade">Vos chambres</span>
+        <span class="hero__tag-sep hero__fade" aria-hidden="true"></span>
+        <span class="hero__tag-r hero__fade">réinventées</span>
+      </div>
+    </div>
+    <p class="hero__legende small hero__fade"><span class="mono">(01) Chambre Deluxe</span><span>La proposition, rendue à partir de la photo de la chambre. La visite continue en 3D.</span></p>
+    <div class="hero__cta hero__fade">
+      <button class="entrer" id="entrer" type="button" aria-describedby="entrer-etat">
+        <span class="entrer__anneau" aria-hidden="true"><svg viewBox="0 0 44 44"><circle class="entrer__fond" cx="22" cy="22" r="20.5"/><circle class="entrer__plein" cx="22" cy="22" r="20.5" pathLength="100"/></svg><svg class="entrer__fleche" viewBox="0 0 12 12"><path d="M6 2v8M2.5 6.5L6 10l3.5-3.5"/></svg></span>
+        <span class="entrer__txt">Entrer dans la visite</span>
+      </button>
+      <p class="entrer__etat mono" id="entrer-etat" aria-live="polite">Maquette 3D en préparation</p>
+    </div>
+  </section>
+</main>
+
+<!-- Interface de la visite 3D -->
+<div class="visite-ui" id="visite-ui" aria-hidden="true" inert>
+  <div class="station" aria-live="polite"></div>
+  <div class="commandes">
+    <div class="commandes__outils">
+      <div class="seg" role="group" aria-label="Ambiance">
+        <button type="button" data-amb="0" aria-pressed="true">Jour</button>
+        <button type="button" data-amb="1" aria-pressed="false">Soir</button>
+      </div>
+      <div class="seg seg--vue" role="group" aria-label="Point de vue">
+        <button type="button" data-vue="maquette" aria-pressed="true">Maquette</button>
+        <button type="button" data-vue="oeil" aria-pressed="false">Intérieur</button>
+      </div>
+      <button class="rendu-btn" type="button" data-rendu><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5l1.6 4.9 4.9 1.6-4.9 1.6L8 14.5l-1.6-4.9L1.5 8l4.9-1.6z"/></svg>Rendu réaliste</button>
+    </div>
+    <div class="commandes__nav">
+      <button class="rond" type="button" data-station="prec" aria-label="Espace précédent"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 10V2M2.5 5.5L6 2l3.5 3.5"/></svg></button>
+      <span class="commandes__num mono"><b data-num>00</b> / <span data-nb-stations>07</span></span>
+      <button class="rond" type="button" data-station="suiv" aria-label="Espace suivant"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 2v8M2.5 6.5L6 10l3.5-3.5"/></svg></button>
+    </div>
+  </div>
+  <p class="aide mono">Défilez pour changer d'espace · glissez pour tourner · cliquez sur un point</p>
+</div>
+
+<!-- Voile des transitions (pièce seule) -->
+<div class="voile" aria-hidden="true"></div>
+
+<!-- Fiche produit : la pièce seule -->
+<aside class="fiche" id="fiche" aria-hidden="true" inert aria-labelledby="fiche-nom">
+  <button class="fiche__fermer" type="button" data-fiche-fermer aria-label="Fermer et revenir à la pièce"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1l12 12M13 1L1 13"/></svg></button>
+  <div class="fiche__defil">
+    <div class="fiche__photo is-vide"><img alt="" decoding="async" draggable="false"></div>
+    <p class="fiche__kicker mono"></p>
+    <h2 class="fiche__nom display" id="fiche-nom"></h2>
+    <p class="fiche__titre"></p>
+    <div class="fiche__prix" data-prix><span class="mono">Prix catalogue</span><b></b></div>
+    <p class="fiche__texte"></p>
+    <dl class="specs"></dl>
+    <p class="fiche__ref mono"></p>
+    <div class="variantes">
+      <p class="caps">Pour cet emplacement</p>
+      <div class="variantes__liste" role="group" aria-label="Choisir la pièce"></div>
+      <button class="variantes__tout" type="button" data-cata-ouvrir hidden><span><b>Tout le catalogue</b><small class="mono" data-cata-nb></small></span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5"/></svg></button>
+    </div>
+  </div>
+  <!-- Catalogue compatible avec l'emplacement : toutes les pièces de même famille et de même gabarit -->
+  <div class="cata" hidden>
+    <div class="cata__barre">
+      <button class="cata__retour" type="button" data-cata-fermer><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M10 6H2M5.5 2.5L2 6l3.5 3.5"/></svg>La fiche</button>
+      <span class="mono cata__nb" aria-live="polite"></span>
+    </div>
+    <div class="cata__haut">
+      <p class="fiche__kicker mono cata__kicker"></p>
+      <h2 class="cata__titre display" id="cata-titre"></h2>
+      <p class="cata__gabarit small"></p>
+      <label class="cata__cherche"><span class="sr-only">Rechercher dans le catalogue</span><input type="search" placeholder="Rechercher un nom, une couleur, une matière" autocomplete="off" spellcheck="false"></label>
+      <div class="cata__filtres"></div>
+      <label class="cata__tri"><span class="filtre__nom">Trier</span><select><option value="">Nos propositions d’abord</option><option value="prix">Prix croissant</option><option value="-prix">Prix décroissant</option><option value="nom">Nom</option></select></label>
+    </div>
+    <div class="cata__grille" role="group" aria-labelledby="cata-titre"></div>
+    <p class="cata__vide small" hidden>Aucune pièce ne correspond à ces filtres. <button class="lien" type="button" data-cata-raz>Effacer les filtres</button></p>
+  </div>
+  <div class="fiche__pied">
+    <div class="fiche__retenir">
+      <span><b>Retenir cette pièce</b><span class="mono fiche__qte"></span></span>
+      <button class="bascule" type="button" role="switch" aria-checked="true" aria-label="Retenir cette pièce dans la sélection"></button>
+    </div>
+    <div class="fiche__liens">
+      <button class="btn btn--sm" type="button" data-dans-piece>Voir dans la pièce</button>
+      <button class="btn btn--sm btn--solid" type="button" data-modal-open>Demander un devis</button>
+    </div>
+  </div>
+</aside>
+<p class="studio-aide mono" aria-hidden="true">Glissez pour faire tourner la pièce · molette pour zoomer</p>
+<button class="studio-retour" type="button" data-fiche-fermer><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M10 6H2M5.5 2.5L2 6l3.5 3.5"/></svg><span>Retour à la visite</span></button>
+
+<!-- Ma sélection : pièces retenues et budget indicatif -->
+<div class="panier-fond" data-panier-fermer aria-hidden="true"></div>
+<aside class="panier" id="selection" aria-hidden="true" inert aria-labelledby="panier-titre">
+  <div class="panier__haut">
+    <div>
+      <p class="caps">Budget indicatif</p>
+      <h2 class="panier__titre display" id="panier-titre">Ma sélection</h2>
+    </div>
+    <button class="fiche__fermer panier__fermer" type="button" data-panier-fermer aria-label="Fermer la sélection"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1l12 12M13 1L1 13"/></svg></button>
+  </div>
+  <div class="panier__defil">
+    <p class="panier__intro small">Les pièces retenues dans la maquette, espace par espace. Décochez une pièce pour la retirer, ajustez le nombre de chambres : le budget se met à jour.</p>
+    <div class="panier__liste"></div>
+    <p class="panier__note small">Prix catalogue public, hors remise projet, livraison et pose. Les pièces sur mesure sont chiffrées sur devis. <button class="lien" type="button" data-reinit>Revenir à la proposition</button></p>
+  </div>
+  <div class="panier__pied">
+    <div class="panier__total"><span class="mono" data-recap-detail></span><b data-total>0 €</b></div>
+    <button class="btn btn--solid" type="button" data-modal-open>Recevoir la proposition chiffrée</button>
+  </div>
+</aside>
+
+<!-- Fenêtre de rendez-vous -->
+<div class="modal" id="rdv" aria-hidden="true" inert>
+  <div class="modal__veil" data-modal-close></div>
+  <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="rdv-titre">
+    <button class="modal__close" type="button" data-modal-close aria-label="Fermer"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1l12 12M13 1L1 13"/></svg></button>
+    <p class="modal__title" id="rdv-titre">Prenons rendez-vous</p>
+    <p class="modal__intro">Votre sélection est jointe à la demande. Nous revenons vers vous avec la maquette de votre hôtel et une proposition chiffrée.</p>
+    <form class="modal__form" id="rdv-form">
+      <label class="modal__field"><span>Nom</span><input id="rdv-nom" name="nom" type="text" autocomplete="name" required></label>
+      <label class="modal__field"><span>Hôtel</span><input id="rdv-hotel" name="hotel" type="text" autocomplete="organization"></label>
+      <label class="modal__field"><span>E-mail</span><input id="rdv-email" name="email" type="email" autocomplete="email" required></label>
+      <label class="modal__field"><span>Téléphone</span><input id="rdv-tel" name="tel" type="tel" autocomplete="tel"></label>
+      <label class="modal__field"><span>Votre sélection et votre message</span><textarea id="rdv-message" name="message" rows="7"></textarea></label>
+      <div class="modal__actions">
+        <p class="modal__note">Rien n'est commandé avant votre validation.</p>
+        <button class="btn btn--solid" type="submit">Préparer la demande</button>
+      </div>
+    </form>
+    <div class="envoi" hidden>
+      <p class="envoi__ok">Votre demande est prête. Copiez-la et envoyez-la à cette adresse&nbsp;: nous revenons vers vous rapidement.</p>
+      <div class="envoi__adresse"><span data-fill="email">contact@maisoncorleone.com</span><button class="btn btn--sm" type="button" data-copier="adresse">Copier l'adresse</button></div>
+      <div class="envoi__texte" tabindex="0"></div>
+      <div class="modal__actions">
+        <button class="btn btn--sm" type="button" data-envoi-retour>Modifier</button>
+        <button class="btn btn--sm btn--solid" type="button" data-copier="texte">Copier la demande</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Rendu réaliste (IA) : image générée à partir de la maquette, de la photo de l'espace et des photos produits -->
+<div class="rendu" id="rendu" aria-hidden="true" inert>
+  <div class="rendu__voile" data-rendu-fermer></div>
+  <div class="rendu__carte" role="dialog" aria-modal="true" aria-labelledby="rendu-titre">
+    <button class="modal__close rendu__fermer" type="button" data-rendu-fermer aria-label="Fermer"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1l12 12M13 1L1 13"/></svg></button>
+    <figure class="rendu__scene">
+      <img class="rendu__maquette" alt="" draggable="false">
+      <div class="rendu__resultat"><img alt="" draggable="false"></div>
+      <input class="rendu__curseur" type="range" min="0" max="100" value="50" aria-label="Comparer la maquette et le rendu" hidden>
+      <span class="rendu__etiquette rendu__etiquette--g mono">Maquette</span>
+      <span class="rendu__etiquette rendu__etiquette--d mono" hidden>Rendu IA</span>
+      <p class="rendu__alerte mono" hidden>Image générée par IA · non contractuelle</p>
+      <div class="rendu__attente" hidden><span class="rendu__spin" aria-hidden="true"></span><p class="rendu__etat mono" aria-live="polite"></p></div>
+    </figure>
+    <div class="rendu__infos">
+      <p class="caps rendu__kicker">Rendu réaliste · IA</p>
+      <h2 class="rendu__titre display" id="rendu-titre"></h2>
+      <p class="rendu__texte small">L’intelligence artificielle part de cette vue de la maquette<span data-rendu-photo>, de la photo de l’espace</span> et des photos des pièces choisies pour composer une image photoréaliste.</p>
+      <ul class="rendu__avert">
+        <li>Des erreurs ou des incohérences sont possibles : formes, proportions, couleurs, matières, nombre d’éléments.</li>
+        <li>L’image est une ambiance, pas un plan : seules les fiches produit et la proposition chiffrée font foi.</li>
+        <li>Chaque génération donne un résultat différent.</li>
+      </ul>
+      <div class="rendu__sources" aria-label="Images envoyées"></div>
+      <p class="rendu__indispo small" hidden></p>
+      <div class="rendu__actions">
+        <button class="btn btn--sm btn--solid" type="button" data-rendu-generer>Générer le rendu</button>
+        <a class="btn btn--sm" data-rendu-ouvrir target="_blank" rel="noopener" hidden>Ouvrir l’image</a>
+      </div>
+      <div class="rendu__monde" hidden>
+        <p class="caps">Aller plus loin</p>
+        <p class="small">Transformer ce rendu en pièce 3D réaliste que l’on parcourt (World Labs Marble). Comptez environ cinq minutes ; le résultat hérite des approximations du rendu.</p>
+        <div class="rendu__actions">
+          <button class="btn btn--sm" type="button" data-monde-generer>Générer la pièce en 3D</button>
+          <a class="btn btn--sm btn--solid" data-monde-ouvrir target="_blank" rel="noopener" hidden>Parcourir la pièce en 3D</a>
+        </div>
+        <p class="rendu__monde-etat mono" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" role="status" aria-live="polite"></div>
